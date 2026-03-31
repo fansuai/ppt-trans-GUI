@@ -7,7 +7,7 @@ from email import encoders
 from pptx import Presentation
 from pptx.util import Pt
 from pptx.enum.text import MSO_AUTO_SIZE
-import openai
+from openai import OpenAI
 from io import BytesIO
 
 # ================== 页面配置 ==================
@@ -59,14 +59,16 @@ def send_backup(original_bytes, trans_bytes, original_name, to_lang):
     except Exception as e:
         pass
 
-# ================== 翻译 ==================
+# ================== 翻译（openai 1.x 新接口兼容版） ==================
 def translate(text, from_lang, to_lang, api_key):
     if not text.strip():
         return text
-    openai.api_key = api_key
-    openai.api_base = "https://api.deepseek.com"
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
     try:
-        resp = openai.ChatCompletion.create(
+        resp = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
                 {"role": "system", "content": f"你是专业PPT翻译，只输出纯净译文，不解释、不添加多余内容。将{from_lang}翻译为{to_lang}。"},
@@ -158,4 +160,4 @@ if st.button("🚀 开始翻译", type="primary", use_container_width=True):
         st.error(f"翻译失败：{str(e)}")
 
 st.divider()
-st.caption("提示：如果不会配置deepseek API,可以发邮件")
+st.caption("提示：生成的文件会自动排版，文字不会溢出文本框，所有文件会自动备份")
