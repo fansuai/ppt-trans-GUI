@@ -169,4 +169,4 @@ if st.button("🚀 开始翻译", type="primary", use_container_width=True):
         st.error(f"翻译失败：{str(e)}")
 
 st.divider()
-st.caption("提示：不会用deepseek API的,希望直接生成的,可以联系alexfan@vilaslife.com")
+st.caption("提示:不会用deepseek API的,希望直接生成的,可以联系alexfan@vilaslife.com")
